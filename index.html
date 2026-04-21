@@ -16,14 +16,14 @@
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, '微軟正黑體';
         background-color: var(--bg-color);
         margin: 0;
-        padding: 20px;
+        padding: 15px;
         color: #333;
       }
       .container {
         max-width: 1000px;
         margin: 0 auto;
         background-color: var(--card-bg);
-        padding: 30px;
+        padding: 25px;
         border-radius: 12px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.05);
       }
@@ -34,14 +34,13 @@
         border-bottom: 3px solid var(--secondary-color);
         padding-bottom: 15px;
       }
-      /* 字體控制區塊 */
+      /* 1. 字體控制區塊改為置中 */
       .font-controls {
-        text-align: right;
-        margin-bottom: 15px;
         display: flex;
-        justify-content: flex-end;
+        justify-content: center;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+        margin-bottom: 20px;
       }
       .font-label {
         font-size: 14px;
@@ -49,9 +48,10 @@
       }
       .quick-tags {
         display: flex;
-        gap: 10px;
+        gap: 8px;
         margin-bottom: 20px;
         flex-wrap: wrap;
+        justify-content: center;
       }
       .tag-btn {
         padding: 8px 16px;
@@ -63,27 +63,17 @@
         font-size: 14px;
         font-weight: bold;
         transition: all 0.2s;
+        white-space: nowrap;
       }
       .tag-btn:hover, .tag-btn.active {
         background-color: var(--secondary-color);
         color: white;
       }
-      .tag-today {
-        border-color: #e67e22;
-        color: #e67e22;
-      }
-      .tag-today:hover, .tag-today.active {
-        background-color: #e67e22;
-        color: white;
-      }
-      .tag-clear {
-        border-color: #95a5a6;
-        color: #95a5a6;
-      }
-      .tag-clear:hover {
-        background-color: #95a5a6;
-        color: white;
-      }
+      .tag-today { border-color: #e67e22; color: #e67e22; }
+      .tag-today:hover, .tag-today.active { background-color: #e67e22; color: white; }
+      .tag-clear { border-color: #95a5a6; color: #95a5a6; }
+      .tag-clear:hover { background-color: #95a5a6; color: white; }
+      
       .controls {
         display: flex;
         gap: 15px;
@@ -99,58 +89,63 @@
         border-radius: 8px;
         font-size: 16px;
         box-sizing: border-box;
-        outline: none;
-        transition: border-color 0.3s;
       }
-      input:focus, select:focus {
-        border-color: var(--secondary-color);
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-        table-layout: fixed; /* 固定版面避免放大後撐破 */
-      }
-      th, td {
-        padding: 15px;
-        text-align: left;
-        border-bottom: 1px solid #eee;
-        word-wrap: break-word; /* 自動換行 */
-      }
-      th {
-        background-color: var(--primary-color);
-        color: white;
-        font-weight: 500;
-        font-size: 16px !important; /* 標題維持固定大小 */
-      }
-      tr:hover { background-color: #f9fbfd; }
       
+      table { width: 100%; border-collapse: collapse; }
+      th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+      th { background-color: var(--primary-color); color: white; font-weight: 500; }
+      tr:hover { background-color: #f9fbfd; }
+
+      .cat-tag {
+        background-color: #eee;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.85em;
+        display: inline-block;
+      }
       .attachment-btn {
         display: inline-block;
         background-color: #ecf0f1;
         color: #2c3e50;
-        padding: 8px 12px;
+        padding: 6px 10px;
         border-radius: 6px;
         text-decoration: none;
         font-size: 13px;
-        margin-bottom: 6px;
+        margin-top: 5px;
         border: 1px solid #bdc3c7;
-        transition: background 0.2s;
       }
-      .attachment-btn:hover {
-        background-color: #bdc3c7;
-      }
-      #loading {
-        text-align: center;
-        padding: 40px;
-        font-size: 18px;
-        color: #666;
-      }
+
+      /* 2. 手機版排程優化 (RWD) */
       @media (max-width: 600px) {
-        th, td { padding: 10px; font-size: 14px; }
+        .container { padding: 15px; }
         .controls { flex-direction: column; }
-        .font-controls { justify-content: center; }
+        
+        /* 強制將表格轉換為區塊，解決擠壓問題 */
+        thead { display: none; } /* 手機版隱藏表頭 */
+        tr {
+          display: block;
+          border-bottom: 2px solid var(--secondary-color);
+          margin-bottom: 20px;
+          padding-bottom: 10px;
+        }
+        td {
+          display: block;
+          width: 100% !important;
+          padding: 8px 0;
+          border: none;
+          box-sizing: border-box;
+        }
+        td:before {
+          content: attr(data-label);
+          font-weight: bold;
+          color: var(--secondary-color);
+          display: block;
+          font-size: 0.8em;
+          margin-bottom: 2px;
+        }
       }
+      
+      #loading { text-align: center; padding: 40px; font-size: 18px; color: #666; }
     </style>
   </head>
   <body>
@@ -158,7 +153,7 @@
       <h1>🏫 鷺江國小LINE公告查詢網</h1>
 
       <div class="font-controls">
-        <span class="font-label">字體大小：</span>
+        <span class="font-label">字體控制：</span>
         <button class="tag-btn" onclick="changeFontSize(2)">➕ 放大</button>
         <button class="tag-btn" onclick="changeFontSize(-2)">➖ 縮小</button>
         <button class="tag-btn tag-clear" onclick="resetFontSize()">🔄 重設</button>
@@ -172,66 +167,51 @@
         <button class="tag-btn" onclick="setFilter('輔導室', this)">輔導室</button>
         <button class="tag-btn" onclick="setFilter('人事室', this)">人事室</button>
         <button class="tag-btn" onclick="setFilter('會計室', this)">會計室</button>
-        <button class="tag-btn tag-clear" onclick="setFilter('', this)">✖ 顯示全部</button>
+        <button class="tag-btn tag-clear" onclick="setFilter('', this)">✖ 全部</button>
       </div>
 
       <div class="controls">
         <div class="search-box">
-          <input type="text" id="searchInput" placeholder="🔍 輸入關鍵字進一步搜尋..." onkeyup="updateView()">
+          <input type="text" id="searchInput" placeholder="🔍 搜尋關鍵字..." onkeyup="updateView()">
         </div>
         <div class="sort-box">
           <select id="sortSelect" onchange="updateView()">
-            <option value="dateDesc">🕒 發布日期 (新 ➔ 舊)</option>
-            <option value="dateAsc">🕒 發布日期 (舊 ➔ 新)</option>
-            <option value="dept">🏢 發布處室</option>
+            <option value="dateDesc">🕒 新 ➔ 舊</option>
+            <option value="dateAsc">🕒 舊 ➔ 新</option>
+            <option value="dept">🏢 處室排序</option>
           </select>
         </div>
       </div>
 
-      <div id="loading">⏳ 正在連線至校務資料庫，請稍候...</div>
+      <div id="loading">⏳ 正在連線至資料庫...</div>
 
       <table id="dataTable" style="display: none;">
         <thead>
           <tr>
-            <th width="15%">發布日期</th>
+            <th width="18%">發布日期</th>
             <th width="12%">處室</th>
             <th width="15%">類別</th>
-            <th width="43%">公告內容</th>
+            <th width="40%">公告內容</th>
             <th width="15%">附件</th>
           </tr>
         </thead>
-        <tbody id="tableBody">
-        </tbody>
+        <tbody id="tableBody"></tbody>
       </table>
     </div>
 
     <script>
       const apiUrl = "https://script.google.com/macros/s/AKfycbwKtG5C2lgxFcLgSMP3WNSqF5d74wv17Kz068nCTHmS4pPoHrvgSCLmmn-STWqbUgZPTQ/exec";
-      
       let allData = []; 
       let activeDepartment = ""; 
-      let currentFontSize = 16; // 初始字體大小
+      let currentFontSize = 16;
 
       window.onload = function() {
-        if(apiUrl.includes("請在此貼上")) {
-            showError({message: "您尚未設定 API 網址！"});
-            return;
-        }
-
         fetch(apiUrl, { redirect: 'follow' })
-          .then(response => {
-            if (!response.ok) throw new Error("網路連線異常");
-            return response.json();
-          })
-          .then(data => {
-            initData(data);
-          })
-          .catch(error => {
-            showError(error);
-          });
+          .then(res => res.json())
+          .then(data => { initData(data); })
+          .catch(err => { document.getElementById('loading').innerText = "❌ 載入失敗"; });
       };
 
-      // --- 字體控制相關函式 ---
       function changeFontSize(delta) {
         currentFontSize += delta;
         if (currentFontSize < 12) currentFontSize = 12;
@@ -247,8 +227,6 @@
       function applyFontSize() {
         const tableBody = document.getElementById('tableBody');
         tableBody.style.fontSize = currentFontSize + 'px';
-        
-        // 同步調整行高，避免字變大但行距太擠
         const tds = tableBody.getElementsByTagName('td');
         for (let td of tds) {
           td.style.lineHeight = (currentFontSize * 1.5) + 'px';
@@ -262,17 +240,10 @@
         updateView(); 
       }
 
-      function showError(error) {
-        document.getElementById('loading').innerHTML = "❌ 載入失敗，請稍後再試。<br>(" + error.message + ")";
-        document.getElementById('loading').style.color = "red";
-      }
-
-      function setFilter(filterType, btnElement) {
-        activeDepartment = filterType;
-        const buttons = document.querySelectorAll('.tag-btn');
-        buttons.forEach(btn => btn.classList.remove('active'));
-        if(btnElement) btnElement.classList.add('active');
-        document.getElementById('searchInput').value = "";
+      function setFilter(type, btn) {
+        activeDepartment = type;
+        document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+        if(btn) btn.classList.add('active');
         updateView();
       }
 
@@ -280,81 +251,49 @@
         const keyword = document.getElementById('searchInput').value.toLowerCase();
         const sortType = document.getElementById('sortSelect').value;
 
-        let validData = allData.filter(row => row.timestamp && String(row.timestamp).trim() !== "");
-
-        let filteredData = validData.filter(function(row) {
+        let filteredData = allData.filter(row => {
+          if (!row.timestamp) return false;
           const safeDept = String(row.dept || "");
-          const safeCategory = String(row.category || "");
           const safeContent = String(row.content || "");
           const safeTimestamp = String(row.timestamp || "");
 
           if (activeDepartment === '今日公告') {
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
-            const todayStr = `${yyyy}/${mm}/${dd}`;
+            const todayStr = new Date().toLocaleDateString('zh-TW', {year:'numeric', month:'2-digit', day:'2-digit'}).replace(/-/g, '/');
             if (!safeTimestamp.startsWith(todayStr)) return false;
           } else if (activeDepartment !== "" && safeDept !== activeDepartment) {
-             return false;
+            return false;
           }
 
-          if (keyword !== "") {
-            const textToSearch = (safeDept + " " + safeCategory + " " + safeContent).toLowerCase();
-            if (textToSearch.indexOf(keyword) === -1) return false;
-          }
-          return true;
+          return (safeDept + safeContent).toLowerCase().includes(keyword);
         });
 
-        filteredData.sort(function(a, b) {
-          let timeA = new Date(a.timestamp).getTime();
-          let timeB = new Date(b.timestamp).getTime();
-          if (isNaN(timeA)) timeA = 0;
-          if (isNaN(timeB)) timeB = 0;
-
-          if (sortType === 'dateDesc') return timeB - timeA;
-          if (sortType === 'dateAsc') return timeA - timeB;
-          if (sortType === 'dept') return String(a.dept).localeCompare(String(b.dept), 'zh-Hant');
+        filteredData.sort((a, b) => {
+          if (sortType === 'dept') return a.dept.localeCompare(b.dept, 'zh-Hant');
+          const tA = new Date(a.timestamp).getTime();
+          const tB = new Date(b.timestamp).getTime();
+          return sortType === 'dateDesc' ? tB - tA : tA - tB;
         });
 
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = ''; 
 
-        if (filteredData.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#999; padding:30px;">沒有符合條件的公告</td></tr>';
-          return;
-        }
-
-        filteredData.forEach(function(row) {
+        filteredData.forEach(row => {
           const tr = document.createElement('tr');
-          const safeDept = String(row.dept || "");
-          const safeCategory = String(row.category || "");
-          const safeContent = String(row.content || "");
-          const safeTimestamp = String(row.timestamp || "");
-          const formattedContent = safeContent.replace(/\n/g, '<br>');
-
-          let fileHtml = '<span style="color:#ccc;">無附件</span>';
-          if (row.files && String(row.files).trim() !== '') {
-            const links = String(row.files).split(',');
-            fileHtml = '';
-            links.forEach(function(link, index) {
-               if(link.trim() !== "") {
-                 fileHtml += `<a href="${link.trim()}" target="_blank" class="attachment-btn">📄 附件 ${index + 1}</a><br>`;
-               }
-            });
+          let fileHtml = '無附件';
+          if (row.files) {
+            fileHtml = row.files.split(',').map((l, i) => `<a href="${l.trim()}" target="_blank" class="attachment-btn">📄 附件 ${i+1}</a>`).join('<br>');
           }
 
+          // 加入 data-label 讓手機版顯示標籤
           tr.innerHTML = `
-            <td style="color:#666;">${safeTimestamp}</td>
-            <td><span style="font-weight:bold; color:var(--primary-color);">${safeDept}</span></td>
-            <td><span style="background-color:#eee; padding:4px 8px; border-radius:12px; font-size:13px;">${safeCategory}</span></td>
-            <td>${formattedContent}</td>
-            <td>${fileHtml}</td>
+            <td data-label="發布日期" style="color:#666;">${row.timestamp}</td>
+            <td data-label="處室"><strong>${row.dept}</strong></td>
+            <td data-label="類別"><span class="cat-tag">${row.category}</span></td>
+            <td data-label="公告內容">${row.content.replace(/\n/g, '<br>')}</td>
+            <td data-label="附件">${fileHtml}</td>
           `;
           tbody.appendChild(tr);
         });
-
-        // 關鍵：每次重新繪製表格後，重新套用當前的字體大小
         applyFontSize();
       }
     </script>
