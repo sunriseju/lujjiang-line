@@ -34,6 +34,19 @@
         border-bottom: 3px solid var(--secondary-color);
         padding-bottom: 15px;
       }
+      /* 字體控制區塊 */
+      .font-controls {
+        text-align: right;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+      }
+      .font-label {
+        font-size: 14px;
+        color: #666;
+      }
       .quick-tags {
         display: flex;
         gap: 10px;
@@ -96,16 +109,19 @@
         width: 100%;
         border-collapse: collapse;
         margin-top: 10px;
+        table-layout: fixed; /* 固定版面避免放大後撐破 */
       }
       th, td {
         padding: 15px;
         text-align: left;
         border-bottom: 1px solid #eee;
+        word-wrap: break-word; /* 自動換行 */
       }
       th {
         background-color: var(--primary-color);
         color: white;
         font-weight: 500;
+        font-size: 16px !important; /* 標題維持固定大小 */
       }
       tr:hover { background-color: #f9fbfd; }
       
@@ -133,12 +149,20 @@
       @media (max-width: 600px) {
         th, td { padding: 10px; font-size: 14px; }
         .controls { flex-direction: column; }
+        .font-controls { justify-content: center; }
       }
     </style>
   </head>
   <body>
     <div class="container">
       <h1>🏫 鷺江國小LINE公告查詢網</h1>
+
+      <div class="font-controls">
+        <span class="font-label">字體大小：</span>
+        <button class="tag-btn" onclick="changeFontSize(2)">➕ 放大</button>
+        <button class="tag-btn" onclick="changeFontSize(-2)">➖ 縮小</button>
+        <button class="tag-btn tag-clear" onclick="resetFontSize()">🔄 重設</button>
+      </div>
       
       <div class="quick-tags" id="tagContainer">
         <button class="tag-btn tag-today" onclick="setFilter('今日公告', this)">🌟 今日公告</button>
@@ -182,33 +206,54 @@
     </div>
 
     <script>
-      // ============================================================
-      // ⚠️ 請在這裡貼上您在 GAS 部署得到的 API 網址 (記得保留雙引號)
-      // ============================================================
       const apiUrl = "https://script.google.com/macros/s/AKfycbwKtG5C2lgxFcLgSMP3WNSqF5d74wv17Kz068nCTHmS4pPoHrvgSCLmmn-STWqbUgZPTQ/exec";
       
       let allData = []; 
       let activeDepartment = ""; 
+      let currentFontSize = 16; // 初始字體大小
 
-      // 網頁載入完成後，透過 fetch API 向 Google 請求資料
       window.onload = function() {
         if(apiUrl.includes("請在此貼上")) {
-            showError({message: "您尚未設定 API 網址！請用記事本打開 Index.html 並填入網址。"});
+            showError({message: "您尚未設定 API 網址！"});
             return;
         }
 
         fetch(apiUrl, { redirect: 'follow' })
           .then(response => {
             if (!response.ok) throw new Error("網路連線異常");
-            return response.json(); // 將 Google 傳來的文字轉回 JSON 陣列
+            return response.json();
           })
           .then(data => {
-            initData(data); // 成功拿到資料，開始畫表格
+            initData(data);
           })
           .catch(error => {
-            showError(error); // 發生錯誤
+            showError(error);
           });
       };
+
+      // --- 字體控制相關函式 ---
+      function changeFontSize(delta) {
+        currentFontSize += delta;
+        if (currentFontSize < 12) currentFontSize = 12;
+        if (currentFontSize > 32) currentFontSize = 32;
+        applyFontSize();
+      }
+
+      function resetFontSize() {
+        currentFontSize = 16;
+        applyFontSize();
+      }
+
+      function applyFontSize() {
+        const tableBody = document.getElementById('tableBody');
+        tableBody.style.fontSize = currentFontSize + 'px';
+        
+        // 同步調整行高，避免字變大但行距太擠
+        const tds = tableBody.getElementsByTagName('td');
+        for (let td of tds) {
+          td.style.lineHeight = (currentFontSize * 1.5) + 'px';
+        }
+      }
 
       function initData(data) {
         allData = data;
@@ -235,10 +280,8 @@
         const keyword = document.getElementById('searchInput').value.toLowerCase();
         const sortType = document.getElementById('sortSelect').value;
 
-        // 濾除無效空行
         let validData = allData.filter(row => row.timestamp && String(row.timestamp).trim() !== "");
 
-        // 1. 過濾邏輯
         let filteredData = validData.filter(function(row) {
           const safeDept = String(row.dept || "");
           const safeCategory = String(row.category || "");
@@ -263,23 +306,17 @@
           return true;
         });
 
-        // 2. 排序邏輯
         filteredData.sort(function(a, b) {
           let timeA = new Date(a.timestamp).getTime();
           let timeB = new Date(b.timestamp).getTime();
           if (isNaN(timeA)) timeA = 0;
           if (isNaN(timeB)) timeB = 0;
 
-          if (sortType === 'dateDesc') {
-            return timeB - timeA;
-          } else if (sortType === 'dateAsc') {
-            return timeA - timeB;
-          } else if (sortType === 'dept') {
-            return String(a.dept).localeCompare(String(b.dept), 'zh-Hant');
-          }
+          if (sortType === 'dateDesc') return timeB - timeA;
+          if (sortType === 'dateAsc') return timeA - timeB;
+          if (sortType === 'dept') return String(a.dept).localeCompare(String(b.dept), 'zh-Hant');
         });
 
-        // 3. 繪製表格
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = ''; 
 
@@ -290,12 +327,10 @@
 
         filteredData.forEach(function(row) {
           const tr = document.createElement('tr');
-          
           const safeDept = String(row.dept || "");
           const safeCategory = String(row.category || "");
           const safeContent = String(row.content || "");
           const safeTimestamp = String(row.timestamp || "");
-          
           const formattedContent = safeContent.replace(/\n/g, '<br>');
 
           let fileHtml = '<span style="color:#ccc;">無附件</span>';
@@ -304,7 +339,7 @@
             fileHtml = '';
             links.forEach(function(link, index) {
                if(link.trim() !== "") {
-                 fileHtml += `<a href="${link.trim()}" target="_blank" class="attachment-btn">📄 開啟附件檔 ${index + 1}</a><br>`;
+                 fileHtml += `<a href="${link.trim()}" target="_blank" class="attachment-btn">📄 附件 ${index + 1}</a><br>`;
                }
             });
           }
@@ -318,6 +353,9 @@
           `;
           tbody.appendChild(tr);
         });
+
+        // 關鍵：每次重新繪製表格後，重新套用當前的字體大小
+        applyFontSize();
       }
     </script>
   </body>
